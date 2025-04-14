@@ -3,9 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "data-viewer", "data-viewer\data-viewer.csproj", "{67D9E34F-37C0-45A2-84B8-A93006118F2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer", "DataViewer\DataViewer.csproj", "{67D9E34F-37C0-45A2-84B8-A93006118F2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "data-viewer-applogic", "data-viewer-applogic\data-viewer-applogic.csproj", "{6E883C8C-6C8C-421F-910D-B43A91D8107A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.AppLogic", "DataViewer.AppLogic\DataViewer.AppLogic.csproj", "{6E883C8C-6C8C-421F-910D-B43A91D8107A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Models", "DataViewer.Models\DataViewer.Models.csproj", "{8F1FA44B-95A5-450F-980E-83AC10B75FD0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Interfaces", "DataViewer.Interfaces\DataViewer.Interfaces.csproj", "{4D990F1A-FDA1-4DD0-900C-A64F82B1E99D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.AppLogic.Tests", "DataViewer.AppLogic.Tests\DataViewer.AppLogic.Tests.csproj", "{148DD8AB-D37F-485D-B6D4-F8B891B2FAD3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +32,18 @@ Global
 		{6E883C8C-6C8C-421F-910D-B43A91D8107A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E883C8C-6C8C-421F-910D-B43A91D8107A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E883C8C-6C8C-421F-910D-B43A91D8107A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F1FA44B-95A5-450F-980E-83AC10B75FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F1FA44B-95A5-450F-980E-83AC10B75FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F1FA44B-95A5-450F-980E-83AC10B75FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F1FA44B-95A5-450F-980E-83AC10B75FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D990F1A-FDA1-4DD0-900C-A64F82B1E99D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D990F1A-FDA1-4DD0-900C-A64F82B1E99D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D990F1A-FDA1-4DD0-900C-A64F82B1E99D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D990F1A-FDA1-4DD0-900C-A64F82B1E99D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{148DD8AB-D37F-485D-B6D4-F8B891B2FAD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{148DD8AB-D37F-485D-B6D4-F8B891B2FAD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{148DD8AB-D37F-485D-B6D4-F8B891B2FAD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{148DD8AB-D37F-485D-B6D4-F8B891B2FAD3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

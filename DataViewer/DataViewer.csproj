@@ -3,14 +3,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <RootNamespace>data_viewer</RootNamespace>
+    <RootNamespace>DataViewer</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\data-viewer-applogic\data-viewer-applogic.csproj" />
+    <ProjectReference Include="..\DataViewer.AppLogic\DataViewer.AppLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

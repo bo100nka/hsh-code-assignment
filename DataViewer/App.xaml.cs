@@ -5,7 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Windows;
 
-namespace data_viewer
+namespace DataViewer
 {
     /// <summary>
     /// Interaction logic for App.xaml
