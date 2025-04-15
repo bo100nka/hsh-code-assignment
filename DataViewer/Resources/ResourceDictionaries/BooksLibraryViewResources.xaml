@@ -1,0 +1,24 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <DataTemplate x:Key="DataTemplate_ISBN13">
+        <TextBlock Text="{Binding Path=Isbn13}" FontFamily="Courier new" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="DataTemplate_Title">
+        <TextBlock Text="{Binding Path=Title}" FontFamily="Courier new" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="DataTemplate_Author">
+        <TextBlock Text="{Binding Path=Author}" FontFamily="Courier new" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="DataTemplate_Pages">
+        <TextBlock Text="{Binding Path=Pages}" FontFamily="Courier new" />
+    </DataTemplate>
+
+    <DataTemplate x:Key="DataTemplate_Language">
+        <TextBlock Text="{Binding Path=Language}" FontFamily="Courier new" />
+    </DataTemplate>
+
+</ResourceDictionary>
