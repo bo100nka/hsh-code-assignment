@@ -26,15 +26,15 @@
 
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="5">
             <Label x:Name="lblVersion" Content="Version" Width="100" />
-            <TextBlock x:Name="tbVersion" Text="{Binding Version, FallbackValue='1.2.3'}" Width="200" VerticalAlignment="Center"/>
+            <TextBlock x:Name="tbVersion" Text="{Binding Header.Version, FallbackValue='1.2.3'}" Width="200" VerticalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="5">
             <Label x:Name="lblTimestamp" Content="Timestamp" Width="100" />
-            <TextBlock x:Name="tbTimestamp" Text="{Binding Timestamp, FallbackValue='2025-04-15 16:35'}" Width="200" VerticalAlignment="Center"/>
+            <TextBlock x:Name="tbTimestamp" Text="{Binding Header.Timestamp, FallbackValue='2025-04-15 16:35'}" Width="200" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <ListView Grid.Row="1" Grid.ColumnSpan="2" x:Name="lwBooks" Margin="4" ItemsSource="{Binding Path=ArticleItems}" ScrollViewer.VerticalScrollBarVisibility="Visible">
+        <ListView Grid.Row="1" Grid.ColumnSpan="2" x:Name="lwBooks" Margin="4" ItemsSource="{Binding Path=Articles}" ScrollViewer.VerticalScrollBarVisibility="Visible">
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
                     <GridViewColumn CellTemplate="{StaticResource DataTemplate_ISBN13}" Header="ISBN-13" Width="150"/>
@@ -52,7 +52,7 @@
             <StatusBarItem Content="Status:"/>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Text="{Binding Path=StatusText, FallbackValue='Loading'}" MaxHeight="40" />
+                <TextBlock Text="{Binding Path=StatusText, FallbackValue='STATUS TEXT HERE'}" MaxHeight="40" />
             </StatusBarItem>
         </StatusBar>
     </Grid>
