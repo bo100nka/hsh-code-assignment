@@ -8,6 +8,9 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <DockPanel LastChildFill="True">
+
+        <!--It's possible to instantiate a static/dynamic resource at Design time and show it here instead
+        of its type's boring implicit .ToString() representation-->
         <view:BooksLibraryView DockPanel.Dock="Top" />
     </DockPanel>
 </Window>

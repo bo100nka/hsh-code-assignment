@@ -1,11 +1,13 @@
-﻿namespace DataViewer.ViewModel
+﻿using DataViewer.ViewModel;
+
+namespace DataViewer.Models
 {
     /// <summary>
-    /// Could be useful to have a common base for all view models at some point
+    /// Could be useful to have a common base for all models at some point
     /// </summary>
-    public class ViewModelBase : NotifyBase, IDisposable
+    public abstract class ModelBase : NotifyBase, IDisposable
     {
-        public ViewModelBase()
+        public ModelBase()
         {
         }
 
@@ -14,7 +16,7 @@
         /// </summary>
         public virtual void Dispose()
         {
-            
+
         }
     }
 }

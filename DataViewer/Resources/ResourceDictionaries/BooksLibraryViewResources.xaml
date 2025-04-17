@@ -1,5 +1,7 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<!--Contains resources referenced by BooksLibraryView control-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:Name="BooksLibraryViewResources">
 
     <DataTemplate x:Key="DataTemplate_ISBN13">
         <TextBlock Text="{Binding Path=Isbn13}" FontFamily="Courier new" />

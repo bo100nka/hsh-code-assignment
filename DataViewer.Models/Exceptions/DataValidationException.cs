@@ -1,8 +1,8 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-namespace DataViewer.Models.Exceptions
+﻿namespace DataViewer.Models.Exceptions
 {
+    /// <summary>
+    /// A dedicated exception used by data validator.
+    /// </summary>
     [Serializable]
     public class DataValidationException : Exception
     {

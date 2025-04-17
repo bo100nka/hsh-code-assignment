@@ -7,27 +7,41 @@ using DataViewer.Models.Exceptions;
 
 namespace DataViewer.AppLogic
 {
-    public sealed class BooksLibraryJsonFileParser : IDataParser<BooksLibrary>
+    /// <summary>
+    /// A specific variant of a data parser, namely for JSON file that represents <see cref="BooksLibrary"/> data structure.
+    /// </summary>
+    public sealed class BooksLibraryJsonFileParser : IDataParser<BooksLibrary>, IDisposable
     {
         private readonly FileInfo _sourceFileInfo;
         private readonly JsonSerializerOptions? _jsonSerializerOptions;
 
+        /// <summary>
+        /// Constructs a new instance of the parser.
+        /// Plausible defaults have been assumed about JSON parsing options: AllowTrailCommas, comment skipping an property name is case agnostic.
+        /// </summary>
+        /// <param name="booksFileFullPath"></param>
+        /// <exception cref="ArgumentException">When unable to instantiate <see cref="FileInfo"/> out of the <paramref name="booksFileFullPath"/> value.</exception>
         public BooksLibraryJsonFileParser(string booksFileFullPath)
         {
             _sourceFileInfo = ValidateFilePath(booksFileFullPath);
 
+            // one can argue what the plausible defaults for handling JSON files may be, but since
+            // it was not defined from the beginning, i simply chose some plausible defaults
             _jsonSerializerOptions = new JsonSerializerOptions
             {
-                // one can argue what the plausible defaults for handling JSON files may be, but since
-                // it was not defined from the beginning, i simply chose some plausible defaults
                 AllowTrailingCommas = true,
-                ReadCommentHandling = JsonCommentHandling.Skip, // JSONC like
+                ReadCommentHandling = JsonCommentHandling.Skip,
                 WriteIndented = true, // while useless during deserialization, this may be useful when serializer options are used during debug
                 PropertyNameCaseInsensitive = true,
             };
             _jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
+        /// <summary>
+        /// Attempts to parse the JSON file name the parser was constructed with.
+        /// </summary>
+        /// <returns>A valid instance of <see cref="BooksLibrary"/>.</returns>
+        /// <exception cref="DataParseException">When an exception occured while parsing the underlying JSON file.</exception>
         public BooksLibrary Parse()
         {
             try
@@ -46,7 +60,7 @@ namespace DataViewer.AppLogic
             catch (Exception ex)
             {
                 // we want to propagate a single exception type that wraps all others when attempting to read the file and failing at that
-                throw new DataParseException($"Unable to read file `{_sourceFileInfo.FullName}`", ex);
+                throw new DataParseException($"Unable to parse json file `{_sourceFileInfo.Name}` to `{nameof(BooksLibrary)}`", ex);
             }
         }
 
@@ -60,6 +74,14 @@ namespace DataViewer.AppLogic
             {
                 throw new ArgumentException($"Unable to instantiated a valid file path out of `{sourceFileFullPath}`", nameof(sourceFileFullPath));
             }
+        }
+
+        /// <summary>
+        /// The <see cref="IDisposable"/> implementation.
+        /// </summary>
+        public void Dispose()
+        {
+            //because why not
         }
     }
 }

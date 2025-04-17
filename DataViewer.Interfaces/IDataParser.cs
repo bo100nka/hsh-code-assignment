@@ -1,16 +1,19 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-using DataViewer.Models.Exceptions;
-
+﻿using DataViewer.Models.Exceptions;
 
 namespace DataViewer.Interfaces
 {
+    /// <summary>
+    /// A data parser of a given <typeparamref name="T"/> type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <exception cref="DataParseException">When it encountered a failure during parsing.</exception>
     public interface IDataParser<T>
     {
         /// <summary>
-        /// 
+        /// Parses the underlying data, returning the given <typeparamref name="T"/> data type or <see cref="DataParseException"/>
+        /// on failure.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A valid instance of parsed <typeparamref name="T"/> data.</returns>
         /// <exception cref="DataParseException">An attempt to parse the data failed or resulted in an underlying exception.</exception>
         T Parse();
     }

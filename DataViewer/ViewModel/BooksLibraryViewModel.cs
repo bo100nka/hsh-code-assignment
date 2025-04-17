@@ -1,67 +1,111 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using DataViewer.AppLogic;
 using DataViewer.Common;
 using DataViewer.Interfaces;
+using DataViewer.Models;
 using DataViewer.Models.Data;
-using DataViewer.Models.Exceptions;
 
 namespace DataViewer.ViewModel
 {
+    /// <summary>
+    /// The behavior logic for the corresponding view (only see <see cref="View.BooksLibraryView"/> is implemented though.)
+    /// </summary>
     public sealed class BooksLibraryViewModel : ViewModelBase
     {
         private readonly IDataParser<BooksLibrary> _dataParser;
         private readonly IDataValidator<BooksLibrary> _dataValidator;
-        private readonly ICommand? _commandForceReload;
+        private readonly PeriodicInvoker _periodicInvoker;
         private string? _statusText;
-        private bool _hasError;
         private BooksLibraryModel? _header;
         private ObservableCollection<BooksLibraryArticleModel?>? _articles;
 
-        public BooksLibraryViewModel(IDataParser<BooksLibrary> parser, IDataValidator<BooksLibrary> validator)
+        /// <summary>
+        /// Constructs an instance of the view model with a data parser, validator and periodic data update handlers.
+        /// </summary>
+        /// <param name="parser">A provider of the <see cref="BooksLibrary"/> structure.</param>
+        /// <param name="validator">A validator of a <see cref="BooksLibrary"/> instance.</param>
+        /// <param name="periodicInvoker">A simple implementation of <see cref="PeriodicTimer"/>.</param>
+        /// <remarks>Do not confuse <see cref="BooksLibrary"/> with <see cref="BooksLibraryModel"/></remarks>
+        /// <exception cref="ArgumentNullException">When either <paramref name="parser"/>, <paramref name="validator"/> or <paramref name="periodicInvoker"/> is null.</exception>
+        public BooksLibraryViewModel(
+            IDataParser<BooksLibrary> parser,
+            IDataValidator<BooksLibrary> validator,
+            PeriodicInvoker periodicInvoker)
         {
             _dataParser = parser ?? throw new ArgumentNullException(nameof(parser));
             _dataValidator = validator ?? throw new ArgumentNullException(nameof(validator));
-            _commandForceReload = new RelayCommand(_ => TryReloadData());
+            _periodicInvoker = periodicInvoker ?? throw new ArgumentNullException(nameof(periodicInvoker));
+            CommandForceReload = new RelayCommand(_ => TryReloadData());
 
-            TryReloadData();
+            CommandForceReload.Execute(default);
+            _periodicInvoker.Start(() => CommandForceReload.Execute(default));
+        }
+
+        /// <summary>
+        /// Manual force data reload command binding.
+        /// </summary>
+        public ICommand CommandForceReload { get; }
+
+        /// <summary>
+        /// A primitive status reporting text binding
+        /// </summary>
+        public string? StatusText
+        {
+            get => _statusText;
+            set => SetAndNotifyIfNewValue(ref _statusText, value, nameof(StatusText));
+        }
+
+        /// <summary>
+        /// A "header" part of the bound <see cref="BooksLibrary"/>.
+        /// </summary>
+        public BooksLibraryModel? Header
+        {
+            get => _header;
+            set => SetAndNotifyIfNewValue(ref _header, value, nameof(Header));
+        }
+
+        /// <summary>
+        /// A list of articles inside <see cref="BooksLibrary.Articles"/> property binding.
+        /// </summary>
+        public ObservableCollection<BooksLibraryArticleModel?>? Articles
+        {
+            get => _articles;
+            set => SetAndNotifyIfNewValue(ref _articles, value, nameof(Articles));
+        }
+
+        /// <summary>
+        /// The <see cref="IDisposable"/> implementation.
+        /// </summary>
+        public override void Dispose()
+        {
+            base.Dispose();
+            // disposing of injected classes is not done here, as whoever injected them to
+            // this class should do it instead
         }
 
         private void TryReloadData()
         {
-            _hasError = true;
             var booksLibrary = default(BooksLibrary?);
 
-            try
-            {
-                Report("Loading data");
-                booksLibrary = _dataParser.Parse();
-
-            }
-            catch (DataParseException pex)
-            {
-                Report(pex);
-            }
-
-            try
-            {
-                Report("Validating data");
-                _dataValidator.Validate(booksLibrary!);
-                _hasError = false;
-            }
-            catch (DataValidationException vex)
-            {
-                Report(vex);
-            }
-
-            if (_hasError)
+            if (!Try("Loading data", () => booksLibrary = _dataParser.Parse()))
                 return;
 
-            Report("Rebuilding model");
-            RebuildModel(booksLibrary);
-            Report("Done!");
+            if (!Try("Validating data", () => _dataValidator.Validate(booksLibrary!)))
+                return;
+
+            if (Try("Rebuilding model", () => RebuildBoundDataFrom(booksLibrary)))
+                Report("Data loaded successfully");
         }
 
-        private void RebuildModel(BooksLibrary? booksLibrary)
+        /// <summary>
+        /// a better solution is to simply have a main model as a single unit
+        /// where each bound property gets updated on their own, i just
+        /// went down this road instead - hard reload on each "refresh" sequence
+        /// as is the nature of the assignment.
+        /// </summary>
+        /// <param name="booksLibrary"></param>
+        private void RebuildBoundDataFrom(BooksLibrary? booksLibrary)
         {
             Header = new BooksLibraryModel(booksLibrary!);
 
@@ -74,27 +118,24 @@ namespace DataViewer.ViewModel
             }
         }
 
+        // and some helper functions below just for redability 
         private void Report(string status) => StatusText = $"[{DateTime.Now:HH:mm:ss}]: {status}...";
+
         private void Report(Exception exception) => StatusText = $"{StatusText} Error: {exception.FormatException(includeStackTrace: false)}";
 
-        public ICommand CommandForceReload => _commandForceReload!;
-
-        public string? StatusText
+        private bool Try(string status, Action action)
         {
-            get => _statusText;
-            set => SetAndNotifyIfNewValue(ref _statusText, value, nameof(StatusText));
-        }
-
-        public BooksLibraryModel? Header
-        {
-            get => _header;
-            set => SetAndNotifyIfNewValue(ref _header, value, nameof(Header));
-        }
-
-        public ObservableCollection<BooksLibraryArticleModel?>? Articles
-        {
-            get => _articles;
-            set => SetAndNotifyIfNewValue(ref _articles, value, nameof(Articles));
+            try
+            {
+                Report(status);
+                action();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Report(ex);
+                return false;
+            }
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace DataViewer.Common
 {
     /// <summary>
-    /// An ICommand-based class with delegates refered by other object instances
+    /// A basic implementation of the MVVM command binding.
     /// </summary>
     public class RelayCommand : ICommand
     {
@@ -11,9 +11,19 @@ namespace DataViewer.Common
         private Action<object?> _execute;
 
         /// <summary>
+        /// Internally subscribes to <see cref="CommandManager.RequerySuggested"/> event.
+        /// </summary>
+        public event EventHandler? CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        /// <summary>
         /// Creates a new command that can execute always.
         /// </summary>
         /// <param name="execute">The execution logic (can not be null)</param>
+        /// <exception cref="ArgumentNullException">When <paramref name="execute"/> is null.</exception>
         public RelayCommand(Action<object?> execute)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
@@ -24,6 +34,7 @@ namespace DataViewer.Common
         /// </summary>
         /// <param name="execute">The execution logic (can not be null)</param>
         /// <param name="canExecute">The execution prevention logic (null = always can execute)</param>
+        /// <exception cref="ArgumentNullException">When <paramref name="execute"/> is null.</exception>
         public RelayCommand(Action<object?> execute, Predicate<object?> canExecute)
             : this(execute)
         {
@@ -33,7 +44,7 @@ namespace DataViewer.Common
         /// <summary>
         /// Allows/denies the execution of this command.
         /// </summary>
-        /// <param name="parameter"></param>
+        /// <param name="parameter">Optional context parameter.</param>
         /// <returns>true when the command can execute, otherwise false.</returns>
         [System.Diagnostics.DebuggerStepThrough]
         public bool CanExecute(object? parameter)
@@ -44,16 +55,10 @@ namespace DataViewer.Common
         /// <summary>
         /// Performs the action this command represents.
         /// </summary>
-        /// <param name="parameter"></param>
+        /// <param name="parameter">Optional context parameter.</param>
         public void Execute(object? parameter)
         {
             _execute(parameter);
-        }
-
-        public event EventHandler? CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
         }
     }
 }

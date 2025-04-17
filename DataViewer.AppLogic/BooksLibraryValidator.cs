@@ -8,7 +8,7 @@ using DataViewer.Models.Exceptions;
 
 namespace DataViewer.AppLogic
 {
-    public sealed class BooksLibraryValidator : IDataValidator<BooksLibrary>
+    public sealed class BooksLibraryValidator : IDataValidator<BooksLibrary>, IDisposable
     {
         public void Validate(BooksLibrary value)
         {
@@ -55,6 +55,10 @@ namespace DataViewer.AppLogic
                     row++;
                 }
             }
+        }
+        public void Dispose()
+        {
+            //because why not
         }
     }
 }
