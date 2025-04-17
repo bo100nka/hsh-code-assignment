@@ -13,9 +13,9 @@ namespace DataViewer.ViewModel
     /// </summary>
     public sealed class BooksLibraryViewModel : ViewModelBase
     {
-        private readonly IDataParser<BooksLibrary> _dataParser;
-        private readonly IDataValidator<BooksLibrary> _dataValidator;
-        private readonly PeriodicInvoker _periodicInvoker;
+        private readonly IDataParser<BooksLibrary> _booksLibraryParser;
+        private readonly IDataValidator<BooksLibrary> _booksLibraryValidator;
+        private readonly PeriodicInvoker _periodicDataReloader;
         private string? _statusText;
         private BooksLibraryModel? _header;
         private ObservableCollection<BooksLibraryArticleModel?>? _articles;
@@ -33,13 +33,13 @@ namespace DataViewer.ViewModel
             IDataValidator<BooksLibrary> validator,
             PeriodicInvoker periodicInvoker)
         {
-            _dataParser = parser ?? throw new ArgumentNullException(nameof(parser));
-            _dataValidator = validator ?? throw new ArgumentNullException(nameof(validator));
-            _periodicInvoker = periodicInvoker ?? throw new ArgumentNullException(nameof(periodicInvoker));
+            _booksLibraryParser = parser ?? throw new ArgumentNullException(nameof(parser));
+            _booksLibraryValidator = validator ?? throw new ArgumentNullException(nameof(validator));
+            _periodicDataReloader = periodicInvoker ?? throw new ArgumentNullException(nameof(periodicInvoker));
             CommandForceReload = new RelayCommand(_ => TryReloadData());
 
             CommandForceReload.Execute(default);
-            _periodicInvoker.Start(() => CommandForceReload.Execute(default));
+            _periodicDataReloader.Start(() => CommandForceReload.Execute(default));
         }
 
         /// <summary>
@@ -88,10 +88,10 @@ namespace DataViewer.ViewModel
         {
             var booksLibrary = default(BooksLibrary?);
 
-            if (!Try("Loading data", () => booksLibrary = _dataParser.Parse()))
+            if (!Try("Loading data", () => booksLibrary = _booksLibraryParser.Parse()))
                 return;
 
-            if (!Try("Validating data", () => _dataValidator.Validate(booksLibrary!)))
+            if (!Try("Validating data", () => _booksLibraryValidator.Validate(booksLibrary!)))
                 return;
 
             if (Try("Rebuilding model", () => RebuildBoundDataFrom(booksLibrary)))
