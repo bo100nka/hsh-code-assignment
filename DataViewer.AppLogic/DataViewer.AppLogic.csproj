@@ -5,10 +5,11 @@
     <RootNamespace>DataViewer.AppLogic</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataViewer.Models\DataViewer.Models.csproj" />
+    <ProjectReference Include="..\DataViewer.Data\DataViewer.Data.csproj" />
     <ProjectReference Include="..\DataViewer.Interfaces\DataViewer.Interfaces.csproj" />
   </ItemGroup>
 

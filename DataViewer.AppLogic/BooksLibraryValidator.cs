@@ -1,15 +1,16 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-using System.Globalization;
+﻿using System.Globalization;
+using DataViewer.Data.Entities;
+using DataViewer.Data.Exceptions;
 using DataViewer.Interfaces;
-using DataViewer.Models.Data;
-using DataViewer.Models.Exceptions;
 
 namespace DataViewer.AppLogic
 {
-    public sealed class BooksLibraryValidator : IDataValidator<BooksLibrary>, IDisposable
+    /// <summary>
+    /// A specific variant of a data validator of <see cref="BooksLibrary"/> data structure.
+    /// </summary>
+    public class BooksLibraryValidator : IDataValidator<BooksLibrary>, IDisposable
     {
+        /// <inheritdoc/>
         public void Validate(BooksLibrary? value)
         {
             if (value == null)
@@ -56,9 +57,12 @@ namespace DataViewer.AppLogic
                 }
             }
         }
+
+        /// <summary>
+        /// Maybe useless in this class, but i keep the same outline for all other classes used in app logic.
+        /// </summary>
         public void Dispose()
         {
-            //because why not
         }
     }
 }

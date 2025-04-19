@@ -19,7 +19,7 @@
             if (exception == null)
                 throw new NullReferenceException(nameof(exception));
 
-            var trace = !includeStackTrace
+            string trace = !includeStackTrace
                 ? string.Empty
                 : $"\n\nStack trace:\n{exception.StackTrace}";
 

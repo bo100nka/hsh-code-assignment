@@ -1,16 +1,16 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DataViewer.Data.Entities;
+using DataViewer.Data.Exceptions;
 using DataViewer.Interfaces;
-using DataViewer.Models.Data;
-using DataViewer.Models.Exceptions;
 
 namespace DataViewer.AppLogic
 {
     /// <summary>
     /// A specific variant of a data parser, namely for JSON file that represents <see cref="BooksLibrary"/> data structure.
     /// </summary>
-    public sealed class BooksLibraryJsonFileParser : IDataParser<BooksLibrary>, IDisposable
+    public class BooksLibraryJsonFileParser : IDataParser<BooksLibrary>, IDisposable
     {
         private readonly FileInfo _sourceFileInfo;
         private readonly JsonSerializerOptions? _jsonSerializerOptions;
@@ -64,6 +64,13 @@ namespace DataViewer.AppLogic
             }
         }
 
+        /// <summary>
+        /// Maybe useless in this class, but i keep the same outline for all other classes used in app logic.
+        /// </summary>
+        public void Dispose()
+        {
+        }
+
         private static FileInfo ValidateFilePath(string sourceFileFullPath)
         {
             try
@@ -74,14 +81,6 @@ namespace DataViewer.AppLogic
             {
                 throw new ArgumentException($"Unable to instantiated a valid file path out of `{sourceFileFullPath}`", nameof(sourceFileFullPath));
             }
-        }
-
-        /// <summary>
-        /// The <see cref="IDisposable"/> implementation.
-        /// </summary>
-        public void Dispose()
-        {
-            //because why not
         }
     }
 }

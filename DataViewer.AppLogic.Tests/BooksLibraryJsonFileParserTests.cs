@@ -1,14 +1,14 @@
 using DataViewer.AppLogic.Tests.Utils;
-using DataViewer.Models.Data;
-using DataViewer.Models.Exceptions;
+using DataViewer.Data.Entities;
+using DataViewer.Data.Exceptions;
 using Xunit.Abstractions;
 
 namespace DataViewer.AppLogic.Tests
 {
-    public sealed class BooksFileJsonReaderTests(ITestOutputHelper testOutputHelper)
+    public class BooksFileJsonReaderTests(ITestOutputHelper testOutputHelper)
     {
         [Fact]
-        public void ctor_ValidatesArguments()
+        public void Constructor_ValidatesArguments()
         {
             Assert.Throws<ArgumentException>(() => new BooksLibraryJsonFileParser(booksFileFullPath: string.Empty));
             Assert.Throws<ArgumentException>(() => new BooksLibraryJsonFileParser(booksFileFullPath: " "));

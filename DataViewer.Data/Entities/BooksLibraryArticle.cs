@@ -1,4 +1,4 @@
-﻿namespace DataViewer.Models.Data
+﻿namespace DataViewer.Data.Entities
 {
     /// <summary>
     /// The inner structure of each element inside the collection of items stored in the top structure.

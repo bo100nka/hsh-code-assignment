@@ -1,4 +1,4 @@
-﻿using DataViewer.Models.Exceptions;
+﻿using DataViewer.Data.Exceptions;
 
 namespace DataViewer.Interfaces
 {
@@ -6,7 +6,6 @@ namespace DataViewer.Interfaces
     /// A data parser of a given <typeparamref name="T"/> type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <exception cref="DataParseException">When it encountered a failure during parsing.</exception>
     public interface IDataParser<T>
     {
         /// <summary>

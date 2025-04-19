@@ -1,23 +1,25 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DataViewer.AppLogic;
 using DataViewer.Common;
+using DataViewer.Data.Entities;
+using DataViewer.Interfaces;
 using DataViewer.Models;
-using DataViewer.Models.Data;
 
 namespace DataViewer.ViewModel
 {
     /// <summary>
     /// The behavior logic for the corresponding view (only see <see cref="View.BooksLibraryView"/> is implemented though.)
     /// </summary>
-    public sealed class BooksLibraryViewModel : ViewModelBase
+    /// <remarks>This class is not sealed due to being able to mock it in a special way.</remarks>
+    public class BooksLibraryViewModel : ViewModelBase
     {
         private CancellationTokenSource? _stoppingTokenSource;
-        private readonly DataMonitoringService<BooksLibrary> _booksLibraryMonitoring;
+        private readonly IDataMonitoringService<BooksLibrary> _booksLibraryMonitoring;
         private Task? _booksLibraryMonitoringTask;
         private string? _statusText;
         private BooksLibraryModel? _header;
         private ObservableCollection<BooksLibraryArticleModel?>? _articles;
+        private bool _hadError;
 
         /// <summary>
         /// Constructs an instance of the view model with a data parser, validator and periodic data update handlers.
@@ -25,7 +27,7 @@ namespace DataViewer.ViewModel
         /// <param name="monitoringService">A periodic data monitoring.</param>
         /// <remarks>Do not confuse <see cref="BooksLibrary"/> with <see cref="BooksLibraryModel"/></remarks>
         /// <exception cref="ArgumentNullException">When <paramref name="monitoringService"/> is null.</exception>
-        public BooksLibraryViewModel(DataMonitoringService<BooksLibrary> monitoringService)
+        public BooksLibraryViewModel(IDataMonitoringService<BooksLibrary> monitoringService)
         {
             _booksLibraryMonitoring = monitoringService ?? throw new ArgumentNullException(nameof(monitoringService));
             _booksLibraryMonitoring.OnProgress += BooksLibraryMonitoring_OnProgress;
@@ -37,30 +39,33 @@ namespace DataViewer.ViewModel
             RestartMonitoring(null);
         }
 
-        private void BooksLibraryMonitoring_OnProgress(object? sender, EventArgs e)
-        {
-            if (_booksLibraryMonitoring.LastReloadSucceeded)
-            {
-                if (_booksLibraryMonitoring.DetectedChanges || _hadError)
-                    ReloadData();
-            }
-            else if (_booksLibraryMonitoring.LastException != null)
-            {
-                Report(_booksLibraryMonitoring.LastException);
-            }
-        }
-
+        /// <summary>
+        /// For Command binding dependent on the running state of the background task.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         public bool IsNotRunning(object? parameter) => !IsRunning(parameter);
 
+        /// <summary>
+        /// For Command binding dependent on the running state of the background task.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         public bool IsRunning(object? parameter) => _stoppingTokenSource != null;
 
         /// <summary>
-        /// Manual force data reload command binding.
+        /// Manual Force data reload command binding.
         /// </summary>
         public ICommand CommandForceReload { get; }
 
+        /// <summary>
+        /// Manual Cancel command binding
+        /// </summary>
         public ICommand CommandCancel { get; }
 
+        /// <summary>
+        /// Manual Restart command binding
+        /// </summary>
         public ICommand CommandRestart { get; }
 
         /// <summary>
@@ -71,8 +76,6 @@ namespace DataViewer.ViewModel
             get => _statusText;
             set => SetAndNotifyIfNewValue(ref _statusText, value, nameof(StatusText));
         }
-
-        private bool _hadError;
 
         /// <summary>
         /// A "header" part of the bound <see cref="BooksLibrary"/>.
@@ -106,6 +109,19 @@ namespace DataViewer.ViewModel
             base.Dispose();
 
             // and since we don't use an explicit finalizer (destructor), i dont make use of GC.SuppressFinalize() anywhere
+        }
+
+        private void BooksLibraryMonitoring_OnProgress(object? sender, EventArgs e)
+        {
+            if (_booksLibraryMonitoring.LastReloadSucceeded)
+            {
+                if (_booksLibraryMonitoring.DetectedChanges || _hadError)
+                    ReloadData();
+            }
+            else if (_booksLibraryMonitoring.LastException != null)
+            {
+                Report(_booksLibraryMonitoring.LastException);
+            }
         }
 
         private void RestartMonitoring(object? parameter)
@@ -196,7 +212,6 @@ namespace DataViewer.ViewModel
             }
         }
 
-        // and some helper functions below just for redability 
         private void Report(string status)
         {
             StatusText = $"[{DateTime.Now:HH:mm:ss}]: {status}...";

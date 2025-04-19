@@ -1,4 +1,4 @@
-﻿namespace DataViewer.Models.Exceptions
+﻿namespace DataViewer.Data.Exceptions
 {
     /// <summary>
     /// A dedicated exception used by data parser.

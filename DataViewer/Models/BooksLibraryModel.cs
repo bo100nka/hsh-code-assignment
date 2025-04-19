@@ -1,4 +1,4 @@
-﻿using DataViewer.Models.Data;
+﻿using DataViewer.Data.Entities;
 
 namespace DataViewer.Models
 {

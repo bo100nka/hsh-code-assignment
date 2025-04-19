@@ -1,13 +1,13 @@
-﻿using DataViewer.Interfaces;
-using DataViewer.Models.Data;
+﻿using DataViewer.Data.Entities;
+using DataViewer.Interfaces;
 using Moq;
 
 namespace DataViewer.AppLogic.Tests
 {
-    public sealed class DataMonitoringServiceTests
+    public class DataMonitoringServiceTests
     {
         [Fact]
-        public void ctor_ValidatesArguments()
+        public void Constructor_ValidatesArguments()
         {
             // Arrange
             IDataParser<BooksLibrary> validParser = new Mock<IDataParser<BooksLibrary>>().Object;
@@ -68,8 +68,8 @@ namespace DataViewer.AppLogic.Tests
             const int waitTimeInMilliseconds = 20;
 
             int progressReportCount = 0;
-            void service_OnProgress(object? sender, EventArgs? eventArgs) => progressReportCount++;
-            service.OnProgress += service_OnProgress;
+            void Service_OnProgress(object? sender, EventArgs? eventArgs) => progressReportCount++;
+            service.OnProgress += Service_OnProgress;
 
             // Assert just to expect default values of relevant public properties before we run the main async monitoring loop
             Assert.Null(service.LastException);
@@ -127,8 +127,12 @@ namespace DataViewer.AppLogic.Tests
             await monitoringTask;
 
             // Cleanup
-            service.OnProgress -= service_OnProgress;
+            service.OnProgress -= Service_OnProgress;
         }
+
+        //TODO: I have decided not to add any more unit tests for this class as i have made the above
+        // unit test more detailed instead. I admit that the above test is bloated and not as elegant as one
+        // might expect it but i still consider it more than good enough.
 
         private static BooksLibrary GetValidBooksLibrary() => new()
         {

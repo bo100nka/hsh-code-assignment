@@ -3,8 +3,8 @@ using System.Windows;
 using System.Windows.Threading;
 using DataViewer.AppLogic;
 using DataViewer.Common;
+using DataViewer.Data.Entities;
 using DataViewer.Interfaces;
-using DataViewer.Models.Data;
 using DataViewer.ViewModel;
 
 namespace DataViewer
@@ -27,8 +27,8 @@ namespace DataViewer
 
         private IDataParser<BooksLibrary>? _parser;
         private IDataValidator<BooksLibrary>? _validator;
-        private DataMonitoringService<BooksLibrary>? _monitoring;
-        private BooksLibraryViewModel? _viewModel;
+        private IDataMonitoringService<BooksLibrary>? _monitoring;
+        private ViewModelBase? _viewModel;
 
         /// <summary>
         /// The entry point of a WPF application.
@@ -87,7 +87,7 @@ namespace DataViewer
         public void Dispose()
         {
             _viewModel?.Dispose();
-            _monitoring?.Dispose();
+            (_monitoring as IDisposable)?.Dispose();
             (_parser as IDisposable)?.Dispose();
             (_validator as IDisposable)?.Dispose();
         }

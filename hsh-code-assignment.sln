@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer", "DataViewer\Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.AppLogic", "DataViewer.AppLogic\DataViewer.AppLogic.csproj", "{6E883C8C-6C8C-421F-910D-B43A91D8107A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Models", "DataViewer.Models\DataViewer.Models.csproj", "{8F1FA44B-95A5-450F-980E-83AC10B75FD0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Data", "DataViewer.Data\DataViewer.Data.csproj", "{8F1FA44B-95A5-450F-980E-83AC10B75FD0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,7 +18,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Interfaces", "Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.AppLogic.Tests", "DataViewer.AppLogic.Tests\DataViewer.AppLogic.Tests.csproj", "{148DD8AB-D37F-485D-B6D4-F8B891B2FAD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Models.Tests", "DataViewer.Models.Tests\DataViewer.Models.Tests.csproj", "{AD1B984C-30D7-437A-8B3B-878B4E04A07E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Data.Tests", "DataViewer.Data.Tests\DataViewer.Data.Tests.csproj", "{AD1B984C-30D7-437A-8B3B-878B4E04A07E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataViewer.Tests", "DataViewer.Tests\DataViewer.Tests.csproj", "{B8AD2069-3E1B-4C63-88DB-FD8214BEC40D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{AD1B984C-30D7-437A-8B3B-878B4E04A07E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD1B984C-30D7-437A-8B3B-878B4E04A07E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD1B984C-30D7-437A-8B3B-878B4E04A07E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8AD2069-3E1B-4C63-88DB-FD8214BEC40D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8AD2069-3E1B-4C63-88DB-FD8214BEC40D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8AD2069-3E1B-4C63-88DB-FD8214BEC40D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8AD2069-3E1B-4C63-88DB-FD8214BEC40D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

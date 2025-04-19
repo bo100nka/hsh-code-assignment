@@ -1,4 +1,4 @@
-﻿namespace DataViewer.Models.Data
+﻿namespace DataViewer.Data.Entities
 {
     /// <summary>
     /// The root structure of the data to be parsed.

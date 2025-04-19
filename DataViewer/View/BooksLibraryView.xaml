@@ -1,8 +1,8 @@
 ﻿<UserControl x:Class="DataViewer.View.BooksLibraryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:DataViewer.View"
              mc:Ignorable="d"
              d:Background="White"
@@ -10,7 +10,7 @@
     <UserControl.Resources>
         <ResourceDictionary Source="/Resources/ResourceDictionaries/BooksLibraryViewResources.xaml"/>
     </UserControl.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40px" />

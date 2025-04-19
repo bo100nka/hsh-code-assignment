@@ -5,10 +5,11 @@
     <RootNamespace>DataViewer.Interfaces</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataViewer.Models\DataViewer.Models.csproj" />
+    <ProjectReference Include="..\DataViewer.Data\DataViewer.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,11 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+using DataViewer.Data.Entities;
 
-using DataViewer.Models.Data;
-
-namespace DataViewer.Models.Tests
+namespace DataViewer.Data.Tests
 {
     public class BooksLibraryAndArticlesTests
     {
         [Fact]
-        public void ctor_CreatesEmptyInstance()
+        public void Constructor_CreatesEmptyInstance()
         {
             var library = new BooksLibrary();
 

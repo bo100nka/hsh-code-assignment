@@ -1,4 +1,4 @@
-﻿using DataViewer.Models.Exceptions;
+﻿using DataViewer.Data.Exceptions;
 
 namespace DataViewer.Interfaces
 {

@@ -1,16 +1,12 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-using DataViewer.Models.Data;
-using DataViewer.Models.Exceptions;
-using Xunit.Abstractions;
+﻿using DataViewer.Data.Entities;
+using DataViewer.Data.Exceptions;
 
 namespace DataViewer.AppLogic.Tests
 {
     public class BooksLibraryValidatorTests
     {
         [Fact]
-        public void ctor_ConstructsValidInstance()
+        public void Constructor_ConstructsValidInstance()
         {
             Assert.NotNull(new BooksLibraryValidator());
         }

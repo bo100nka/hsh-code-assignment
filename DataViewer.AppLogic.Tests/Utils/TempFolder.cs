@@ -3,7 +3,7 @@
     /// <summary>
     /// A temp folder with unique name that will be deleted upon disposal.
     /// </summary>
-    internal class TempFolder : IDisposable
+    internal sealed class TempFolder : IDisposable
     {
         /// <summary>
         /// Creates a new temp directory with a unique name.
