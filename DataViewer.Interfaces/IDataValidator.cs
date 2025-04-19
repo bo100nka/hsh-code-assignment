@@ -13,6 +13,6 @@ namespace DataViewer.Interfaces
         /// </summary>
         /// <param name="value">The object instance which to validate.</param>
         /// <exception cref="DataValidationException">When validation of <paramref name="value"/> failed.</exception>
-        void Validate(T value);
+        void Validate(T? value);
     }
 }

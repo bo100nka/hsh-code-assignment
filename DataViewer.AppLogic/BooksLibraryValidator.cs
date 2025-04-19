@@ -10,7 +10,7 @@ namespace DataViewer.AppLogic
 {
     public sealed class BooksLibraryValidator : IDataValidator<BooksLibrary>, IDisposable
     {
-        public void Validate(BooksLibrary value)
+        public void Validate(BooksLibrary? value)
         {
             if (value == null)
                 throw new DataValidationException($"The object instance is null.");

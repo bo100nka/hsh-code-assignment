@@ -1,9 +1,10 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using DataViewer.AppLogic;
 using DataViewer.Common;
+using DataViewer.Interfaces;
+using DataViewer.Models.Data;
 using DataViewer.ViewModel;
 
 namespace DataViewer
@@ -15,13 +16,18 @@ namespace DataViewer
     /// </summary>
     public partial class App : Application, IDisposable
     {
-        private const int UnexpectedExitCode = -1; // although pointless as not used, but better than a magic constant somewhere down there
-        private const string DataFileName = "books.json"; // went with a hardcoded file name
-        private const int DataRefreshRateMilliseconds = 2000;
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private BooksLibraryJsonFileParser? _parser;
-        private BooksLibraryValidator? _validator;
-        private PeriodicInvoker? _periodicInvoker;
+        // although pointless as not used, but better than a magic constant somewhere down there
+        public const int UnexpectedExitCode = -1;
+
+        // went with a hardcoded file name
+        public const string DataFileName = "books.json";
+
+        // went with a hardcoded 2 seconds monitoring interval period
+        public const int DataRefreshRateMilliseconds = 2000;
+
+        private IDataParser<BooksLibrary>? _parser;
+        private IDataValidator<BooksLibrary>? _validator;
+        private DataMonitoringService<BooksLibrary>? _monitoring;
         private BooksLibraryViewModel? _viewModel;
 
         /// <summary>
@@ -35,19 +41,17 @@ namespace DataViewer
             // 'unexpected' generic error message box handling.
             App.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
 
-            // not using any dependency injection, but at least injecting the dependencies manually here
-            var refreshPeriod = TimeSpan.FromMilliseconds(DataRefreshRateMilliseconds);
+            // not using any dependency injection, but at least injecting the dependencies manually to the VM here
             _parser = new BooksLibraryJsonFileParser(Path.Combine(".", DataFileName));
             _validator = new BooksLibraryValidator();
-            _periodicInvoker = new PeriodicInvoker(refreshPeriod, _cts.Token);
-            
-            _viewModel = new BooksLibraryViewModel(_parser, _validator, _periodicInvoker);
-            var mainWindow = new MainWindow
-            {
-                DataContext = _viewModel // MVVM killswitch
-            };
+            _monitoring = new DataMonitoringService<BooksLibrary>(_parser, _validator, TimeSpan.FromMilliseconds(DataRefreshRateMilliseconds));
 
-            mainWindow.Show();
+            // MVVM bindings are done via DataContext, the main window contains the actual View instance in XAML
+            _viewModel = new BooksLibraryViewModel(_monitoring);
+            new MainWindow
+            {
+                DataContext = _viewModel
+            }.Show();
         }
 
         /// <summary>
@@ -57,8 +61,7 @@ namespace DataViewer
         /// <param name="e"></param>
         protected override void OnExit(ExitEventArgs e)
         {
-            if (!_cts.IsCancellationRequested)
-                _cts.Cancel();
+            Dispose();
             base.OnExit(e);
         }
 
@@ -83,11 +86,10 @@ namespace DataViewer
 
         public void Dispose()
         {
-            _cts.Dispose();
-            _parser?.Dispose();
-            _validator?.Dispose();
-            _periodicInvoker?.Dispose();
             _viewModel?.Dispose();
+            _monitoring?.Dispose();
+            (_parser as IDisposable)?.Dispose();
+            (_validator as IDisposable)?.Dispose();
         }
     }
 

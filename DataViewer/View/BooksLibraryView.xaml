@@ -46,7 +46,11 @@
             </ListView.View>
         </ListView>
 
-        <Button Grid.Row="2" Grid.ColumnSpan="2" Width="150" Margin="5" Content="Force reload" Command="{Binding CommandForceReload}"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <Button Width="150" Margin="5" Content="Force reload" Command="{Binding CommandForceReload}"/>
+            <Button Width="150" Margin="5" Content="Cancel" Command="{Binding CommandCancel}"/>
+            <Button Width="150" Margin="5" Content="Restart" Command="{Binding CommandRestart}"/>
+        </StackPanel>
 
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2" Height="30" DockPanel.Dock="Bottom">
             <StatusBarItem Content="Status:"/>

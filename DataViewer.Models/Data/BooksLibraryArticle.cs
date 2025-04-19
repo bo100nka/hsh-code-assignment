@@ -3,7 +3,7 @@
     /// <summary>
     /// The inner structure of each element inside the collection of items stored in the top structure.
     /// </summary>
-    public class BooksLibraryArticle : IEquatable<BooksLibraryArticle>
+    public class BooksLibraryArticle : IEquatable<BooksLibraryArticle>, ICloneable
     {
         /// <summary>
         /// Allow nullable values
@@ -30,10 +30,20 @@
         /// </summary>
         public int? Pages { get; set; }
 
-        public override bool Equals(object? obj)
+        public object Clone()
         {
-            return Equals(obj as BooksLibraryArticle);
+            return new BooksLibraryArticle
+            {
+                Title = Title,
+                Author = Author,
+                Isbn13 = Isbn13,
+                Language = Language,
+                Pages = Pages,
+            };
         }
+
+        public override bool Equals(object? obj)
+            => Equals(obj as BooksLibraryArticle);
 
         public bool Equals(BooksLibraryArticle? other)
         {
@@ -52,23 +62,9 @@
         }
 
         public override int GetHashCode()
-        {
-            const int primeNumber = 47;
-            unchecked // expected to overflow
-            {
-                var hashCode = Isbn13?.GetHashCode() ?? 0;
-                hashCode = (hashCode * primeNumber) ^ (Title?.GetHashCode() ?? 0);
-                hashCode = (hashCode * primeNumber) ^ (Author?.GetHashCode() ?? 0);
-                hashCode = (hashCode * primeNumber) ^ (Language.GetHashCode());
-                hashCode = (hashCode * primeNumber) ^ (Pages?.GetHashCode() ?? 0);
-
-                return hashCode;
-            }
-        }
+            => HashCode.Combine(Isbn13, Title, Author, Language, Pages);
 
         public override string ToString()
-        {
-            return $"{(Title == null ? string.Empty : Title.Substring(0, Title.Length > 15 ? 15 : Title.Length))}";
-        }
+            => $"{Title?.Substring(0, Math.Max(15, Title.Length))}";
     }
 }

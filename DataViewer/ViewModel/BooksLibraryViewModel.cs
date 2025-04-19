@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using DataViewer.AppLogic;
 using DataViewer.Common;
-using DataViewer.Interfaces;
 using DataViewer.Models;
 using DataViewer.Models.Data;
 
@@ -13,9 +12,9 @@ namespace DataViewer.ViewModel
     /// </summary>
     public sealed class BooksLibraryViewModel : ViewModelBase
     {
-        private readonly IDataParser<BooksLibrary> _booksLibraryParser;
-        private readonly IDataValidator<BooksLibrary> _booksLibraryValidator;
-        private readonly PeriodicInvoker _periodicDataReloader;
+        private CancellationTokenSource? _stoppingTokenSource;
+        private readonly DataMonitoringService<BooksLibrary> _booksLibraryMonitoring;
+        private Task? _booksLibraryMonitoringTask;
         private string? _statusText;
         private BooksLibraryModel? _header;
         private ObservableCollection<BooksLibraryArticleModel?>? _articles;
@@ -23,29 +22,46 @@ namespace DataViewer.ViewModel
         /// <summary>
         /// Constructs an instance of the view model with a data parser, validator and periodic data update handlers.
         /// </summary>
-        /// <param name="parser">A provider of the <see cref="BooksLibrary"/> structure.</param>
-        /// <param name="validator">A validator of a <see cref="BooksLibrary"/> instance.</param>
-        /// <param name="periodicInvoker">A simple implementation of <see cref="PeriodicTimer"/>.</param>
+        /// <param name="monitoringService">A periodic data monitoring.</param>
         /// <remarks>Do not confuse <see cref="BooksLibrary"/> with <see cref="BooksLibraryModel"/></remarks>
-        /// <exception cref="ArgumentNullException">When either <paramref name="parser"/>, <paramref name="validator"/> or <paramref name="periodicInvoker"/> is null.</exception>
-        public BooksLibraryViewModel(
-            IDataParser<BooksLibrary> parser,
-            IDataValidator<BooksLibrary> validator,
-            PeriodicInvoker periodicInvoker)
+        /// <exception cref="ArgumentNullException">When <paramref name="monitoringService"/> is null.</exception>
+        public BooksLibraryViewModel(DataMonitoringService<BooksLibrary> monitoringService)
         {
-            _booksLibraryParser = parser ?? throw new ArgumentNullException(nameof(parser));
-            _booksLibraryValidator = validator ?? throw new ArgumentNullException(nameof(validator));
-            _periodicDataReloader = periodicInvoker ?? throw new ArgumentNullException(nameof(periodicInvoker));
-            CommandForceReload = new RelayCommand(_ => TryReloadData());
+            _booksLibraryMonitoring = monitoringService ?? throw new ArgumentNullException(nameof(monitoringService));
+            _booksLibraryMonitoring.OnProgress += BooksLibraryMonitoring_OnProgress;
 
-            CommandForceReload.Execute(default);
-            _periodicDataReloader.Start(() => CommandForceReload.Execute(default));
+            CommandForceReload = new RelayCommand(ForceReloadData, IsRunning);
+            CommandCancel = new RelayCommand(TryCancel, IsRunning);
+            CommandRestart = new RelayCommand(RestartMonitoring, IsNotRunning);
+
+            RestartMonitoring(null);
         }
+
+        private void BooksLibraryMonitoring_OnProgress(object? sender, EventArgs e)
+        {
+            if (_booksLibraryMonitoring.LastReloadSucceeded)
+            {
+                if (_booksLibraryMonitoring.DetectedChanges || _hadError)
+                    ReloadData();
+            }
+            else if (_booksLibraryMonitoring.LastException != null)
+            {
+                Report(_booksLibraryMonitoring.LastException);
+            }
+        }
+
+        public bool IsNotRunning(object? parameter) => !IsRunning(parameter);
+
+        public bool IsRunning(object? parameter) => _stoppingTokenSource != null;
 
         /// <summary>
         /// Manual force data reload command binding.
         /// </summary>
         public ICommand CommandForceReload { get; }
+
+        public ICommand CommandCancel { get; }
+
+        public ICommand CommandRestart { get; }
 
         /// <summary>
         /// A primitive status reporting text binding
@@ -55,6 +71,8 @@ namespace DataViewer.ViewModel
             get => _statusText;
             set => SetAndNotifyIfNewValue(ref _statusText, value, nameof(StatusText));
         }
+
+        private bool _hadError;
 
         /// <summary>
         /// A "header" part of the bound <see cref="BooksLibrary"/>.
@@ -79,49 +97,117 @@ namespace DataViewer.ViewModel
         /// </summary>
         public override void Dispose()
         {
-            base.Dispose();
+            TryCancel(null);
+            _booksLibraryMonitoring.OnProgress -= BooksLibraryMonitoring_OnProgress;
+
             // disposing of injected classes is not done here, as whoever injected them to
             // this class should do it instead
+
+            base.Dispose();
+
+            // and since we don't use an explicit finalizer (destructor), i dont make use of GC.SuppressFinalize() anywhere
         }
 
-        private void TryReloadData()
+        private void RestartMonitoring(object? parameter)
         {
-            var booksLibrary = default(BooksLibrary?);
+            // task is awaited later in TryCancel
+            _stoppingTokenSource = new CancellationTokenSource();
 
-            if (!Try("Loading data", () => booksLibrary = _booksLibraryParser.Parse()))
+            Report("Starting monitoring...");
+            _booksLibraryMonitoringTask = Task.Run(() => _booksLibraryMonitoring.StartMonitoringAsync(_stoppingTokenSource.Token));
+
+            ForceReloadData(parameter);
+        }
+
+        private void TryCancel(object? parameter)
+        {
+            if (_stoppingTokenSource == null)
                 return;
 
-            if (!Try("Validating data", () => _booksLibraryValidator.Validate(booksLibrary!)))
-                return;
+            _stoppingTokenSource?.Cancel();
+            _stoppingTokenSource?.Dispose();
+            _stoppingTokenSource = null;
 
+            try
+            {
+                // as Dispose() is not an async function, i await it's result synchronously to ensure completion
+                _booksLibraryMonitoringTask?.GetAwaiter().GetResult();
+
+                // and since awaiting a task is internally cleaned up in .net automatically, we don't need to call .Dispose() on it
+            }
+            catch (TaskCanceledException)
+            {
+                // Expected, albeit it should be sufficient to only catch it's parent type (OperationCanceledException)
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected
+            }
+            finally
+            {
+                Report("Cancelled.");
+            }
+        }
+
+        private void ForceReloadData(object? parameter)
+        {
+            _booksLibraryMonitoring.MonitorSourceData();
+            ReloadData(true);
+        }
+
+        private void ReloadData(bool force = false)
+        {
+            _booksLibraryMonitoring.PromoteSourceAsCurrent();
+            BooksLibrary? booksLibrary = _booksLibraryMonitoring.Current;
+            Exception? lastException = _booksLibraryMonitoring.LastException;
+
+            UpdateView(booksLibrary, lastException, force);
+        }
+
+        private void UpdateView(BooksLibrary? booksLibrary, Exception? lastException, bool force)
+        {
             if (Try("Rebuilding model", () => RebuildBoundDataFrom(booksLibrary)))
-                Report("Data loaded successfully");
+            {
+                Report($"Data loaded {(force ? "by force" : "successfully")}");
+            }
+
+            else if (lastException != null)
+            {
+                Report(lastException);
+            }
         }
 
         /// <summary>
         /// a better solution is to simply have a main model as a single unit
         /// where each bound property gets updated on their own, i just
         /// went down this road instead - hard reload on each "refresh" sequence
-        /// as is the nature of the assignment.
         /// </summary>
         /// <param name="booksLibrary"></param>
         private void RebuildBoundDataFrom(BooksLibrary? booksLibrary)
         {
-            Header = new BooksLibraryModel(booksLibrary!);
+            Header = new BooksLibraryModel(booksLibrary);
 
-            if (booksLibrary?.Articles?.Any() ?? false)
+            if (booksLibrary?.Articles != null && booksLibrary.Articles.Length > 0)
             {
-                Articles = new ObservableCollection<BooksLibraryArticleModel?>();
+                Articles = [];
 
-                foreach (var article in booksLibrary.Articles)
+                foreach (BooksLibraryArticle? article in booksLibrary.Articles)
                     Articles.Add(new BooksLibraryArticleModel(article));
             }
         }
 
         // and some helper functions below just for redability 
-        private void Report(string status) => StatusText = $"[{DateTime.Now:HH:mm:ss}]: {status}...";
+        private void Report(string status)
+        {
+            StatusText = $"[{DateTime.Now:HH:mm:ss}]: {status}...";
+            _hadError = false;
+        }
 
-        private void Report(Exception exception) => StatusText = $"{StatusText} Error: {exception.FormatException(includeStackTrace: false)}";
+        private void Report(Exception exception)
+        {
+            StatusText = $"Error: {exception.FormatException(includeStackTrace: false)}";
+            _hadError = true;
+        }
 
         private bool Try(string status, Action action)
         {

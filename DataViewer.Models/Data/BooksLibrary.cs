@@ -3,7 +3,7 @@
     /// <summary>
     /// The root structure of the data to be parsed.
     /// </summary>
-    public class BooksLibrary : IEquatable<BooksLibrary>
+    public class BooksLibrary : IEquatable<BooksLibrary>, ICloneable
     {
         /// <summary>
         /// Allow nullable values
@@ -21,9 +21,7 @@
         public BooksLibraryArticle?[]? Articles { get; set; }
 
         public override bool Equals(object? obj)
-        {
-            return Equals(obj as BooksLibrary);
-        }
+            => Equals(obj as BooksLibrary);
 
         public bool Equals(BooksLibrary? other)
         {
@@ -36,40 +34,52 @@
             return
                 Version == other.Version &&
                 Timestamp == other.Timestamp &&
-
-                // Both articles being null should still mean they are equal
-                (Articles == other.Articles
-                || (
-                    // bot not if either of them being null
-                    Articles != null && other.Articles != null &&
-                    Articles.SequenceEqual(other.Articles)
-                ));
+                AreArticlesEqual(Articles, other.Articles);
         }
 
         public override int GetHashCode()
         {
-            const int primeNumber = 31;
-            unchecked // expected to overflow
+            var hashCode = new HashCode();
+            hashCode.Add(Version);
+            hashCode.Add(Timestamp);
+
+            if (Articles != null)
             {
-                var hashCode = Version?.GetHashCode() ?? 0;
-                hashCode = (hashCode * primeNumber) ^ (Timestamp?.GetHashCode() ?? 0);
-
-                if (Articles != null)
+                foreach (var article in Articles)
                 {
-                    foreach (BooksLibraryArticle? article in Articles)
-                    {
-                        hashCode = (hashCode * primeNumber) ^ (article?.GetHashCode() ?? 0);
-                    }
+                    hashCode.Add(article);
                 }
-
-                return hashCode;
             }
+
+            return hashCode.ToHashCode();
         }
 
         public override string ToString()
         {
             var articles = Articles == null ? string.Empty : string.Join(",", Articles.Select(a => $"{a}"));
             return $"{Version}, {Timestamp}, [{articles}]";
+        }
+
+        public object Clone()
+        {
+            return new BooksLibrary
+            {
+                Version = Version,
+                Timestamp = Timestamp,
+                Articles = Articles?.Select(a => (BooksLibraryArticle?)a?.Clone()).ToArray(),
+            };
+        }
+
+        private static bool AreArticlesEqual(BooksLibraryArticle?[]? articles1, BooksLibraryArticle?[]? articles2)
+        {
+            if (ReferenceEquals(articles1, articles2))
+                return true;
+
+            if (articles1 is null || articles2 is null)
+                return articles1 is null
+                    && articles2 is null;
+
+            return articles1.SequenceEqual(articles2);
         }
     }
 }

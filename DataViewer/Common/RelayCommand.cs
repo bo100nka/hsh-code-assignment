@@ -5,10 +5,15 @@ namespace DataViewer.Common
     /// <summary>
     /// A basic implementation of the MVVM command binding.
     /// </summary>
-    public class RelayCommand : ICommand
+    /// <remarks>
+    /// Creates a new command that can execute always.
+    /// </remarks>
+    /// <param name="execute">The execution logic (can not be null)</param>
+    /// <exception cref="ArgumentNullException">When <paramref name="execute"/> is null.</exception>
+    public class RelayCommand(Action<object?> execute) : ICommand
     {
-        private Predicate<object?>? _canExecute;
-        private Action<object?> _execute;
+        private readonly Predicate<object?>? _canExecute;
+        private readonly Action<object?> _execute = execute ?? throw new ArgumentNullException(nameof(execute));
 
         /// <summary>
         /// Internally subscribes to <see cref="CommandManager.RequerySuggested"/> event.
@@ -17,16 +22,6 @@ namespace DataViewer.Common
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
-        }
-
-        /// <summary>
-        /// Creates a new command that can execute always.
-        /// </summary>
-        /// <param name="execute">The execution logic (can not be null)</param>
-        /// <exception cref="ArgumentNullException">When <paramref name="execute"/> is null.</exception>
-        public RelayCommand(Action<object?> execute)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         }
 
         /// <summary>
@@ -49,7 +44,7 @@ namespace DataViewer.Common
         [System.Diagnostics.DebuggerStepThrough]
         public bool CanExecute(object? parameter)
         {
-            return _canExecute == null ? true : _canExecute(parameter);
+            return _canExecute == null || _canExecute(parameter);
         }
 
         /// <summary>
