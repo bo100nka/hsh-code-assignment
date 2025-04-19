@@ -1,8 +1,11 @@
 ﻿using DataViewer.Interfaces;
-using DataViewer.Models.Exceptions;
 
 namespace DataViewer.AppLogic
 {
+    /// <summary>
+    /// A data parsing, validating and monitoring service.
+    /// </summary>
+    /// <typeparam name="T">A <see cref="ICloneable"/> and <see cref="IEquatable{T}"/> data type.</typeparam>
     public class DataMonitoringService<T> : IDisposable
         where T : ICloneable, IEquatable<T>
     {
@@ -14,6 +17,14 @@ namespace DataViewer.AppLogic
         private T? _current;
         private T? _source;
 
+        /// <summary>
+        /// Constructs the a new instance of a data monitoring service that internally utilizes <see cref="PeriodicTimer"/>.
+        /// </summary>
+        /// <param name="dataParser">An implementation of a data parser logic.</param>
+        /// <param name="dataValidator">An implementation of a data validation logic.</param>
+        /// <param name="timerInterval">A time interval for the monitoring loop sequence duration.</param>
+        /// <exception cref="ArgumentException">When <paramref name="timerInterval"/> is <see cref="TimeSpan.Zero"/></exception>
+        /// <exception cref="ArgumentNullException">When either <paramref name="dataParser"/> or <paramref name="dataValidator"/> is null.</exception>
         public DataMonitoringService(IDataParser<T> dataParser, IDataValidator<T> dataValidator, TimeSpan timerInterval)
         {
             if (timerInterval == TimeSpan.Zero)
@@ -24,12 +35,29 @@ namespace DataViewer.AppLogic
             _disposed = false;
         }
 
+        /// <summary>
+        /// Occurs every time there is an advancement in the monitoring sequence step, which is one of the following:
+        /// 1. Data parsing has failed (then <see cref="LastException"/> will be set)
+        /// 2. Data validation has failed (then <see cref="LastException"/> will be set)
+        /// 3. Parsing and validation succeeded (then <see cref="LastException"/> will be null and <see cref="LastReloadSucceeded"/> will be true).
+        /// </summary>
         public event EventHandler? OnProgress;
 
+        /// <summary>
+        /// Gets whether there are changes between <see cref="Current"/> and <see cref="Source"/>.
+        /// </summary>
         public bool DetectedChanges { get; private set; }
 
+        /// <summary>
+        /// Gets whether the latest attempt to reload data was successful. <seealso cref="LastException"/>.
+        /// </summary>
         public bool LastReloadSucceeded { get; private set; }
 
+        /// <summary>
+        /// Holds the Current data instance promoted from <see cref="Source"/>
+        /// earlier by calling <see cref="PromoteSourceAsCurrent"/>.
+        /// The <see cref="DetectedChanges"/> compares <see cref="Current"/> against <see cref="Source"/>
+        /// </summary>
         public T? Current
         {
             get => _current;
@@ -40,6 +68,11 @@ namespace DataViewer.AppLogic
             }
         }
 
+        /// <summary>
+        /// Holds the latest Source data that the <see cref="Current"/> is compared against.
+        /// Call the <see cref="PromoteSourceAsCurrent"/> to make the Source become the new <see cref="Current"/>.
+        /// The <see cref="DetectedChanges"/> compares <see cref="Current"/> against <see cref="Source"/>
+        /// </summary>
         public T? Source
         {
             get => _source;
@@ -50,8 +83,18 @@ namespace DataViewer.AppLogic
             }
         }
 
+        /// <summary>
+        /// Set to a valid instance of <see cref="Exception"/> if the latest attempt to read or validate date was unsuccessful.
+        /// </summary>
         public Exception? LastException { get; private set; }
 
+        /// <summary>
+        /// Starts the asynchronous monitoring task. Should be called only once per given <paramref name="cancellationToken"/>.
+        /// Cancel the existing <see cref="CancellationTokenSource"/> to being able to call this function again with a new token.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns>The Task that represents the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">When the task was already started before.</exception>
         public async Task StartMonitoringAsync(CancellationToken cancellationToken)
         {
             ThrowIfAlreadyStarted();
@@ -77,6 +120,10 @@ namespace DataViewer.AppLogic
             }
         }
 
+        /// <summary>
+        /// Enforce the source data reading and progress report sequence.
+        /// </summary>
+        /// <returns>True on success.</returns>
         public bool MonitorSourceData()
         {
             LastReloadSucceeded = false;
@@ -93,14 +140,16 @@ namespace DataViewer.AppLogic
             return true;
         }
 
-        private void SetSucceeded()
-        {
-            LastException = null;
-            LastReloadSucceeded = true;
-        }
-
+        /// <summary>
+        /// Clones the <see cref="Source"/> to become the new <see cref="Current"/>.
+        /// This is so that the caller can make the final decision despite changes were detected.
+        /// <seealso cref="DetectedChanges"/>
+        /// </summary>
         public void PromoteSourceAsCurrent() => Current = (T?)Source?.Clone();
 
+        /// <summary>
+        /// <see cref="IDisposable"/>
+        /// </summary>
         public void Dispose()
         {
             if (_disposed)
@@ -108,6 +157,12 @@ namespace DataViewer.AppLogic
 
             _timer.Dispose();
             _disposed = true;
+        }
+
+        private void SetSucceeded()
+        {
+            LastException = null;
+            LastReloadSucceeded = true;
         }
 
         /// <summary>

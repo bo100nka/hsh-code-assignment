@@ -45,6 +45,14 @@ namespace DataViewer.AppLogic.Tests
         [Fact]
         public async Task MonitoringService_ShouldDetectBookChanges()
         {
+            // TODO: FYI Because i have separated parsing logic from the monitoring service, i do not simulate JSON file here,
+            // instead i mock the behavior of the injected parser service and simulate changes on the valid instance instead
+            // I hope that it is still OK.
+
+            // TODO: FYI I have decided to give the monitoring service much more interaction logic (API) to be able to
+            // notify the caller about details of exceptions and steps, hence the test is a bit deeper
+            // i hope it's OK.
+
             // Arrange
             BooksLibrary booksLibrarySource = GetValidBooksLibrary();
             BooksLibrary expectedCurrent = GetValidBooksLibrary();
@@ -59,9 +67,9 @@ namespace DataViewer.AppLogic.Tests
             CancellationToken interruptToken = cancellationTokenSource.Token;
             const int waitTimeInMilliseconds = 20;
 
-            var changesDetected = 0;
-            void Service_OnValidChangesDetected(object? sender, EventArgs? eventArgs) => changesDetected++;
-            service.OnProgress += Service_OnValidChangesDetected;
+            int progressReportCount = 0;
+            void service_OnProgress(object? sender, EventArgs? eventArgs) => progressReportCount++;
+            service.OnProgress += service_OnProgress;
 
             // Assert just to expect default values of relevant public properties before we run the main async monitoring loop
             Assert.Null(service.LastException);
@@ -110,7 +118,7 @@ namespace DataViewer.AppLogic.Tests
             Assert.NotNull(service.Current);
             Assert.NotNull(service.Source);
             Assert.NotEqual(service.Current, service.Source);
-            Assert.True(changesDetected > 0);
+            Assert.True(progressReportCount > 0);
 
             // Act: verify that it's cancellable
             cancellationTokenSource.Cancel();
@@ -119,7 +127,7 @@ namespace DataViewer.AppLogic.Tests
             await monitoringTask;
 
             // Cleanup
-            service.OnProgress -= Service_OnValidChangesDetected;
+            service.OnProgress -= service_OnProgress;
         }
 
         private static BooksLibrary GetValidBooksLibrary() => new()
