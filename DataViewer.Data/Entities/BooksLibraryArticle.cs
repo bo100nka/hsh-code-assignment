@@ -30,6 +30,10 @@
         /// </summary>
         public int? Pages { get; set; }
 
+        /// <summary>
+        /// For copy purposes.
+        /// </summary>
+        /// <returns></returns>
         public object Clone()
         {
             return new BooksLibraryArticle
@@ -42,9 +46,19 @@
             };
         }
 
+        /// <summary>
+        /// Required for comparison
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object? obj)
             => Equals(obj as BooksLibraryArticle);
 
+        /// <summary>
+        /// Required for comparison.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(BooksLibraryArticle? other)
         {
             if (ReferenceEquals(other, null))
@@ -61,9 +75,17 @@
                 Pages == other.Pages;
         }
 
+        /// <summary>
+        /// Required for comparison
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
             => HashCode.Combine(Isbn13, Title, Author, Language, Pages);
 
+        /// <summary>
+        /// A simple text representation of the object data
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
             => $"{Title?.Substring(0, Math.Max(15, Title.Length))}";
     }

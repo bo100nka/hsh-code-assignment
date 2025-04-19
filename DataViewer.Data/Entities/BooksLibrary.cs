@@ -20,9 +20,19 @@
         /// </summary>
         public BooksLibraryArticle?[]? Articles { get; set; }
 
+        /// <summary>
+        /// Required for comparison
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object? obj)
             => Equals(obj as BooksLibrary);
 
+        /// <summary>
+        /// Required for comparison
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(BooksLibrary? other)
         {
             if (ReferenceEquals(other, null))
@@ -37,6 +47,10 @@
                 AreArticlesEqual(Articles, other.Articles);
         }
 
+        /// <summary>
+        /// Required for comparison.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
@@ -54,12 +68,20 @@
             return hashCode.ToHashCode();
         }
 
+        /// <summary>
+        /// A simple text representation of the object data.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var articles = Articles == null ? string.Empty : string.Join(",", Articles.Select(a => $"{a}"));
             return $"{Version}, {Timestamp}, [{articles}]";
         }
 
+        /// <summary>
+        /// For copy purposes.
+        /// </summary>
+        /// <returns></returns>
         public object Clone()
         {
             return new BooksLibrary
