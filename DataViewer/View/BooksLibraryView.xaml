@@ -50,6 +50,7 @@
             <Button Width="150" Margin="5" Content="Force reload" Command="{Binding CommandForceReload}"/>
             <Button Width="150" Margin="5" Content="Cancel" Command="{Binding CommandCancel}"/>
             <Button Width="150" Margin="5" Content="Restart" Command="{Binding CommandRestart}"/>
+            <Button Width="150" Margin="5" Content="Edit source" Command="{Binding CommandEditSourceData}"/>
         </StackPanel>
 
         <StatusBar Grid.Row="3" Grid.ColumnSpan="2" Height="30" DockPanel.Dock="Bottom">

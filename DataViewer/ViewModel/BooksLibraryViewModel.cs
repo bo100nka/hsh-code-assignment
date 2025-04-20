@@ -35,6 +35,7 @@ namespace DataViewer.ViewModel
             CommandForceReload = new RelayCommand(ForceReloadData, IsRunning);
             CommandCancel = new RelayCommand(TryCancel, IsRunning);
             CommandRestart = new RelayCommand(RestartMonitoring, IsNotRunning);
+            CommandEditSourceData = new RelayCommand(EditSourceData);
 
             RestartMonitoring(null);
         }
@@ -67,6 +68,11 @@ namespace DataViewer.ViewModel
         /// Manual Restart command binding
         /// </summary>
         public ICommand CommandRestart { get; }
+
+        /// <summary>
+        /// Manual Open source data for editing.
+        /// </summary>
+        public ICommand CommandEditSourceData { get; }
 
         /// <summary>
         /// A primitive status reporting text binding
@@ -122,6 +128,11 @@ namespace DataViewer.ViewModel
             {
                 Report(_booksLibraryMonitoring.LastException);
             }
+        }
+
+        private void EditSourceData(object? parameter)
+        {
+            System.Diagnostics.Process.Start("notepad", "books.json");
         }
 
         private void RestartMonitoring(object? parameter)
